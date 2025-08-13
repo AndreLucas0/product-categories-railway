@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.andre.produts_categories_desafio_de_cod_railway.model.Category;
+import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.CategoryResponseDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.CreateCategoryDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.UpdateCategoryDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.service.CategoryService;
@@ -31,20 +31,20 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Category> create(@RequestBody @Valid CreateCategoryDTO dto) {
-        Category category = categoryService.create(dto);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(category.getId())
+    public ResponseEntity<CategoryResponseDTO> create(@RequestBody @Valid CreateCategoryDTO dto) {
+        CategoryResponseDTO category = categoryService.create(dto);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(category.id())
                 .toUri();
         return ResponseEntity.created(location).body(category);
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> listAll() {
+    public ResponseEntity<List<CategoryResponseDTO>> listAll() {
         return ResponseEntity.ok(categoryService.listAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathVariable UUID id, @RequestBody UpdateCategoryDTO dto) {
+    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody UpdateCategoryDTO dto) {
         return ResponseEntity.ok(categoryService.update(id, dto));
     }
 

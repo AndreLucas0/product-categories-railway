@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.andre.produts_categories_desafio_de_cod_railway.model.Product;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.CreateProductDTO;
+import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.ProductResponseDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.UpdateProductDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.service.ProductService;
 
@@ -31,20 +31,20 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody @Valid CreateProductDTO dto) {
-        Product product = productService.create(dto);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(product.getId())
+    public ResponseEntity<ProductResponseDTO> create(@RequestBody @Valid CreateProductDTO dto) {
+        ProductResponseDTO product = productService.create(dto);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(product.id())
                 .toUri();
         return ResponseEntity.created(location).body(product);
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> listAll() {
+    public ResponseEntity<List<ProductResponseDTO>> listAll() {
         return ResponseEntity.ok(productService.listAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable UUID id, @RequestBody UpdateProductDTO dto) {
+    public ResponseEntity<ProductResponseDTO> update(@PathVariable UUID id, @RequestBody UpdateProductDTO dto) {
         return ResponseEntity.ok(productService.update(id, dto));
     }
 

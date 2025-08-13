@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.andre.produts_categories_desafio_de_cod_railway.model.Category;
 import com.andre.produts_categories_desafio_de_cod_railway.model.Product;
+import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.CategoryResponseDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.CreateCategoryDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.model.DTO.UpdateCategoryDTO;
 import com.andre.produts_categories_desafio_de_cod_railway.repository.CategoryRepository;
@@ -26,14 +27,14 @@ public class CategoryService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Category create(CreateCategoryDTO dto) {
+    public CategoryResponseDTO create(CreateCategoryDTO dto) {
         Category category = new Category();
         category.setName(dto.name());
 
         if (dto.productIds() != null && !dto.productIds().isEmpty()) {
             Set<Product> products = new HashSet<>();
             for (UUID productId : dto.productIds()) {
-                Product product = productRepository.findById(productId)
+                Product product = productRepository.findByIdWithCategories(productId)
                         .orElseThrow(() -> new EntityNotFoundException("Product not found: " + productId));
                 products.add(product);
             }
@@ -41,27 +42,25 @@ public class CategoryService {
         }
 
         categoryRepository.save(category);
-        return category;
+        return CategoryResponseDTO.fromEntity(category);
     }
 
-    public List<Category> listAll() {
-        return categoryRepository.findAll();
+    public List<CategoryResponseDTO> listAll() {
+        return categoryRepository.findAllWithProducts().stream().map(CategoryResponseDTO::fromEntity).toList();
     }
 
-    public Category update(UUID id, UpdateCategoryDTO dto) {
-        Category category = categoryRepository.findById(id)
+    public CategoryResponseDTO update(UUID id, UpdateCategoryDTO dto) {
+        Category category = categoryRepository.findByIdWithProducts(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + id));
 
-        if (!dto.name().isBlank() || dto.name() != null) {
+        if (!dto.name().isBlank() && dto.name() != null) {
             category.setName(dto.name());
-        }
-
-        if (dto.productIds() != null) {
+        } if (dto.productIds() != null) {
             category.getProducts().clear();
             if (!dto.productIds().isEmpty()) {
                 Set<Product> products = new HashSet<>();
                 for (UUID productId : dto.productIds()) {
-                    Product product = productRepository.findById(productId)
+                    Product product = productRepository.findByIdWithCategories(productId)
                             .orElseThrow(() -> new EntityNotFoundException("Product not found: " + productId));
                     products.add(product);
                 }
@@ -70,7 +69,7 @@ public class CategoryService {
         }
 
         categoryRepository.save(category);
-        return category;
+        return CategoryResponseDTO.fromEntity(category);
     }
 
     public void delete(UUID id) {
